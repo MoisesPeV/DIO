@@ -1,0 +1,99 @@
+package com.banco;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.JoinPoint;
+
+// Classe principal com todas as implementações
+public class SistemaBancario {
+
+    // Classe base para ContaBancaria
+    public static abstract class ContaBancaria {
+        private String titular;
+        private double saldo;
+
+        public ContaBancaria(String titular, double saldoInicial) {
+            this.titular = titular;
+            this.saldo = saldoInicial;
+        }
+
+        public String getTitular() {
+            return titular;
+        }
+
+        public double getSaldo() {
+            return saldo;
+        }
+
+        public void depositar(double valor) {
+            saldo += valor;
+            System.out.println("Depósito de R$" + valor + " realizado. Saldo atual: R$" + saldo);
+        }
+
+        public void sacar(double valor) {
+            saldo -= valor;
+            System.out.println("Saque de R$" + valor + " realizado. Saldo atual: R$" + saldo);
+        }
+    }
+
+    // Subclasses específicas de contas
+    public static class ContaCorrente extends ContaBancaria {
+        public ContaCorrente(String titular, double saldoInicial) {
+            super(titular, saldoInicial);
+        }
+    }
+
+    public static class ContaSalario extends ContaBancaria {
+        public ContaSalario(String titular, double saldoInicial) {
+            super(titular, saldoInicial);
+        }
+    }
+
+    public static class ContaPoupanca extends ContaBancaria {
+        public ContaPoupanca(String titular, double saldoInicial) {
+            super(titular, saldoInicial);
+        }
+    }
+
+    public static class ContaInvestimento extends ContaBancaria {
+        public ContaInvestimento(String titular, double saldoInicial) {
+            super(titular, saldoInicial);
+        }
+    }
+
+    // Aspecto para verificação de saldo
+    @Aspect
+    public static class VerificacaoSaldoAspect {
+        @Before("execution(* com.banco.SistemaBancario.ContaBancaria.sacar(..)) && args(valor)")
+        public void verificarSaldo(JoinPoint joinPoint, double valor) {
+            ContaBancaria conta = (ContaBancaria) joinPoint.getTarget();
+
+            if (conta.getSaldo() < valor) {
+                System.out.println("[ERRO] Saldo insuficiente! Saque de R$" + valor + " não permitido. Saldo atual: R$" + conta.getSaldo());
+                throw new IllegalArgumentException("Saldo insuficiente!");
+            }
+        }
+    }
+
+    // Método principal para execução
+    public static void main(String[] args) {
+        // Criando contas
+        ContaCorrente contaCorrente = new ContaCorrente("João", 1000.0);
+        ContaSalario contaSalario = new ContaSalario("Maria", 500.0);
+
+        // Testando operações
+        try {
+            contaCorrente.sacar(200.0); // Saque permitido
+            contaCorrente.sacar(900.0); // Deve gerar erro de saldo insuficiente
+        } catch (Exception e) {
+            System.out.println("Exceção capturada: " + e.getMessage());
+        }
+
+        try {
+            contaSalario.sacar(100.0); // Saque permitido
+            contaSalario.sacar(600.0); // Deve gerar erro de saldo insuficiente
+        } catch (Exception e) {
+            System.out.println("Exceção capturada: " + e.getMessage());
+        }
+    }
+}

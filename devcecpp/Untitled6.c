@@ -19,8 +19,8 @@ int main() {
   char escolha[20];
   scanf(" %19s", escolha);
 
-  int indice_escolhido = -1;
-  for (int i = 0; i < 6; i++) {
+  int indice_escolhido = -1,i;
+  for ( i = 0; i < 6; i++) {
     if (strcmp(escolha, cogumelos[i].nome) == 0) {
       indice_escolhido = i;
       break;
@@ -31,17 +31,18 @@ int main() {
   int numeroSugestoes = 0;
 
   //TODO: Percorra o array com as alternativas de cogumelos e identifique as sugestões (quando existirem).
-  for (int i = 0; i < 6; i++) {
-      if (i != indice_escolhido && cogumelos[i].valor <= cogumelos[indice_escolhido].valor && numeroSugestoes < 2) {
+  for (i = 0; i < 6; i++) {
+      if (i != indice_escolhido && cogumelos[i].valor <= cogumelos[indice_escolhido].valor) {
 	     sugestoes[numeroSugestoes] = cogumelos[i];
 	     numeroSugestoes++;
+	     if (numeroSugestoes >= 2) break;  // Limita a 2 sugestões
 	   }
     }
 
   if (numeroSugestoes == 0) {
     printf("Desculpe, não há sugestões disponíveis.\n");
   } else {
-    for (int i = 0; i < numeroSugestoes; i++) {
+    for (i = 0; i < numeroSugestoes; i++) {
       printf("%s - Valor: %d\n", sugestoes[i].nome, sugestoes[i].valor);
     }
   }
